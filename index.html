@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>namnueng store payment</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --candy-pink:   #F5A7C0; /* Cotton Pink */
+            --vanilla:      #FFE58A; /* Butter Yellow */
+            --chocolate:    #6D554E; /* Soft Muted Cocoa - สีน้ำตาลนัวละมุน */
+            --pastel-blue:  #B9DDF5; /* Pastel Sky */
+            --soft-pink:    #FCE4EC; /* Softest Pink background base */
+            --soft-aqua:    #A9DCD5; /* Soft Aqua */
+            --mint-green:   #B9D98A; /* Mint Green */
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #FFFFFF 0%, var(--pastel-blue) 40%, var(--soft-pink) 100%);
+            min-height: 100vh;
+            color: var(--chocolate);
+        }
+        
+        /* อนิเมชั่นลอยๆ สำหรับ SVG พื้นหลัง */
+        @keyframes float-up-down {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(10deg); }
+        }
+        @keyframes float-left-right {
+            0%, 100% { transform: translateX(0px) rotate(0deg); }
+            50% { transform: translateX(15px) rotate(-10deg); }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        
+        /* อนิเมชั่นกรอบเส้นประวิ่ง */
+        @keyframes dash-animation {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+        .animate-dash {
+            stroke-dasharray: 12 12;
+            animation: dash-animation 1s linear infinite;
+        }
+        .anim-float-1 { animation: float-up-down 4s ease-in-out infinite; }
+        .anim-float-2 { animation: float-up-down 5s ease-in-out infinite 1.5s; }
+        .anim-float-3 { animation: float-left-right 6s ease-in-out infinite; }
+        .anim-float-4 { animation: float-left-right 4.5s ease-in-out infinite 2s; }
+        .anim-pulse { animation: pulse-soft 3s ease-in-out infinite; }
+        .anim-spin { animation: spin-slow 8s linear infinite; }
+        
+        /* การ์ดสไตล์แก้วสว่างคลีน */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(245, 167, 192, 0.4);
+            box-shadow: 0 25px 60px -15px rgba(109, 85, 78, 0.08),
+                        inset 0 4px 12px rgba(255, 255, 255, 1);
+        }
+        .virtual-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .virtual-card:hover {
+            transform: translateY(-4px);
+        }
+        .virtual-card:active {
+            transform: translateY(2px) scale(0.98);
+        }
+        
+        ::-webkit-scrollbar {
+            width: 0px;
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        candyPink: '#F5A7C0',
+                        vanilla: '#FFE58A',
+                        chocolate: '#6D554E',
+                        pastelBlue: '#B9DDF5',
+                        softPink: '#FCE4EC',
+                        softAqua: '#A9DCD5',
+                        mintGreen: '#B9D98A',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="flex flex-col items-center py-6 px-4 relative overflow-x-hidden">
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <svg class="absolute top-[5%] left-[10%] w-8 h-8 text-candyPink/40 anim-float-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        <svg class="absolute top-[15%] left-[2%] w-6 h-6 text-candyPink/30 anim-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="absolute top-[8%] left-[25%] w-4 h-4 text-candyPink/50 anim-float-3" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+        <svg class="absolute top-[10%] right-[8%] w-10 h-10 text-candyPink/50 anim-float-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="absolute top-[2%] right-[20%] w-5 h-5 text-softAqua/60 anim-float-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        <svg class="absolute top-[40%] -left-2 w-12 h-12 text-candyPink/30 anim-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="absolute top-[50%] right-[2%] w-6 h-6 text-vanilla anim-float-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        <svg class="absolute bottom-[10%] left-[10%] w-8 h-8 text-candyPink/40 anim-float-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <svg class="absolute bottom-[5%] right-[15%] w-7 h-7 text-pastelBlue anim-float-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+    </div>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-chocolate text-white px-6 py-3 rounded-full shadow-xl transition-all duration-300 opacity-0 translate-y-4 pointer-events-none z-50 flex items-center gap-2 font-medium text-sm border border-candyPink/40">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-candyPink">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="toast-text">คัดลอกแล้ว</span>
+    </div>
+
+    <div class="max-w-[420px] w-full relative z-10 space-y-5 pb-10">
+        
+        <div class="text-center pt-2 pb-2 relative">
+            <h1 class="text-3xl font-bold tracking-tight text-chocolate flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-candyPink anim-pulse">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                </svg>
+                namnueng store
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-candyPink anim-pulse transform -scale-x-100">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                </svg>
+            </h1>
+            <p class="text-sm font-semibold text-candyPink uppercase tracking-widest mt-0.5">payment</p>
+        </div>
+
+        <div class="glass-card rounded-[40px] p-3 relative z-10">
+            
+            <svg class="absolute -top-4 -left-2 w-9 h-9 text-candyPink anim-float-1 z-20 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <svg class="absolute top-[25%] -right-3 w-7 h-7 text-pastelBlue anim-float-2 z-20 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            <svg class="absolute bottom-[40%] -left-3 w-5 h-5 text-candyPink anim-spin z-20 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            
+            <div class="relative p-2 rounded-[36px] z-10">
+                <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="calc(100% - 4px)" height="calc(100% - 4px)" rx="34" fill="none" stroke="#F5A7C0" stroke-width="2.5" class="animate-dash" />
+                </svg>
+                <div class="rounded-[28px] overflow-hidden relative shadow-sm border-[4px] border-white bg-white">
+                    <img id="qr-image" src="https://i.postimg.cc/s2j6NGZG/line-oa-chat-261006-213620.jpg" alt="บัญชี namnueng store" class="w-full h-auto object-cover">
+                </div>
+            </div>
+
+            <div class="px-2 mt-2">
+                <button onclick="downloadQR()" class="w-full flex items-center justify-center gap-2 bg-mintGreen/70 text-chocolate font-bold py-3 px-6 rounded-full shadow-md hover:bg-mintGreen/85 transition-all active:scale-95 border border-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-chocolate">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    กดบันทึกภาพแล้วสแกนได้เลยค่ะ ♡
+                </button>
+            </div>
+
+            <div class="p-4 pt-5 space-y-5">
+                
+                <div class="text-center space-y-3">
+                    <p class="text-[15px] font-semibold leading-relaxed text-chocolate">
+                        <span class="inline-flex items-center justify-center gap-1">
+                            เลขบัญชีตามนี้เลยค่ะ
+                            <svg class="w-4 h-4 text-candyPink anim-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                        </span>
+                        <br>ชื่อบัญชี <span class="text-chocolate font-bold bg-vanilla/60 px-2.5 py-0.5 rounded-lg border border-candyPink/30 relative inline-block">
+                            Thanyamon Saengthong
+                            <svg class="absolute -top-2 -right-2.5 w-4 h-4 text-candyPink anim-float-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </span> เท่านี้ !
+                    </p>
+                    
+                    <div class="inline-flex items-center justify-center gap-1.5 text-[11px] text-chocolate font-semibold bg-[#FFFDFC] px-4 py-2.5 rounded-full border border-candyPink/30 shadow-sm whitespace-nowrap">
+                        กดบันทึกภาพแล้วสแกนหรือคัดลอกเลขบัญชีได้เลยค่ะ ♡
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-chocolate shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 py-1">
+                    <div class="h-px bg-candyPink/30 flex-1"></div>
+                    <span class="text-[11px] font-bold text-chocolate/70 tracking-wider uppercase">เลือกช่องทางชำระเงิน</span>
+                    <div class="h-px bg-candyPink/30 flex-1"></div>
+                </div>
+
+                <div class="space-y-4">
+                    
+                    <div class="virtual-card relative bg-gradient-to-br from-candyPink/70 to-softPink rounded-[24px] p-5 shadow-md shadow-candyPink/10 overflow-hidden cursor-pointer border border-white" onclick="copyText('1378029097', this, 'kbank', 'คัดลอกเลขบัญชีแล้ว')">
+                        <svg class="absolute -right-6 -bottom-6 w-32 h-32 text-white opacity-25 transform -rotate-12 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                        
+                        <div class="relative z-10 flex flex-col gap-4">
+                            <div class="flex justify-between items-center">
+                                <div class="bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/50">
+                                    <span class="text-chocolate font-bold text-sm tracking-wider">KBank</span>
+                                </div>
+                                <button class="kbank-btn bg-white text-chocolate text-[12px] font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-sm pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                    คัดลอก
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <div class="text-chocolate text-[11px] font-bold mb-1 drop-shadow-sm">กสิกรไทย (Thanyamon Saengthong)</div>
+                                <div class="text-chocolate font-bold text-[22px] tracking-widest leading-none drop-shadow-sm">1378029097</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="virtual-card relative bg-gradient-to-br from-pastelBlue to-softAqua/60 rounded-[24px] p-5 shadow-md shadow-chocolate/5 overflow-hidden cursor-pointer border border-white" onclick="copyText('0994471831', this, 'true', 'คัดลอกเลขบัญชีแล้ว')">
+                        <svg class="absolute -left-6 -top-6 w-32 h-32 text-white opacity-40 transform rotate-12 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                        <div class="relative z-10 flex flex-col gap-4">
+                            <div class="flex justify-between items-center">
+                                <div class="bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/40">
+                                    <span class="text-chocolate font-bold text-sm tracking-wider">ทรูมันนี่</span>
+                                </div>
+                                <button class="true-btn bg-white text-chocolate text-[12px] font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-sm pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                    คัดลอก
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <div class="text-chocolate text-[11px] font-bold mb-1 drop-shadow-sm">ทรูมันนี่ (Thanyamon Saengthong)</div>
+                                <div class="text-chocolate font-bold text-[22px] tracking-widest leading-none drop-shadow-sm">0994471831</div>
+                                <div class="text-chocolate/80 text-[10px] font-medium mt-1">( โอน wallet มีค่าธรรมเนียม 2.9% )</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 border border-chocolate/15 rounded-2xl p-3 flex items-start gap-3 text-left shadow-sm">
+                        <div class="bg-white p-1.5 rounded-full shadow-sm text-chocolate flex-shrink-0 border border-chocolate/5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="text-[13px] leading-relaxed text-chocolate font-semibold">
+                            โอนผิด โอนเกิน ทบยอดเท่านั้น<br>
+                            <span class="text-chocolate/70 text-[12px] font-normal flex items-center gap-1 flex-wrap">
+                                เช็คบัญชีและชื่อก่อนโอนทุกครั้งนะค่ะ !
+                                <svg class="w-3.5 h-3.5 text-candyPink" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 border border-candyPink/30 rounded-2xl p-3 flex items-start gap-3 text-left shadow-sm">
+                        <div class="bg-white p-1.5 rounded-full shadow-sm text-chocolate flex-shrink-0 border border-candyPink/10">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                        </div>
+                        <div class="text-[13px] leading-relaxed text-chocolate font-semibold">
+                            <span class="font-bold">โอนแล้วอย่าลืมแจ้งสลิปน้า</span><br>
+                            <span class="text-chocolate/70 text-[12px] font-normal flex items-center gap-1 flex-wrap">
+                                เค้าจะได้รีบเช็คยอดให้ไว ๆ ค่ะ
+                                <svg class="w-3.5 h-3.5 text-candyPink" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center flex flex-col items-center justify-center gap-1.5 text-[11px] text-chocolate/70 pt-1 relative z-10">
+            <div class="flex items-center gap-1 font-bold text-chocolate">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-candyPink anim-pulse">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                ขอบคุณที่มาใช้บริการนะคะ
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadQR() {
+            const imgElement = document.getElementById('qr-image');
+            if (!imgElement) return;
+            const imageUrl = imgElement.src;
+
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'namnueng-store-payment-qr.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showToast('บันทึกรูปภาพเรียบร้อยแล้วค่ะ!');
+                })
+                .catch(err => {
+                    console.error('Download failed:', err);
+                    window.open(imageUrl, '_blank');
+                    showToast('เปิดหน้าต่างรูปภาพให้แล้วค่ะ');
+                });
+        }
+
+        function copyText(text, containerElement, type, successMessage) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    handleCopySuccess(containerElement, type, successMessage);
+                }).catch(err => {
+                    console.error('ไม่สามารถคัดลอกได้:', err);
+                    fallbackCopy(text, containerElement, type, successMessage);
+                });
+            } else {
+                fallbackCopy(text, containerElement, type, successMessage);
+            }
+        }
+
+        function fallbackCopy(text, containerElement, type, successMessage) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                handleCopySuccess(containerElement, type, successMessage);
+            } catch (err) {
+                console.error('Fallback: ไม่สามารถคัดลอกได้:', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function handleCopySuccess(containerElement, type, successMessage) {
+            showToast(successMessage);
+            
+            if (type === 'fb') {
+                const iconContainer = containerElement.querySelector('.fb-icon-status');
+                const textContainer = containerElement.querySelector('.font-bold');
+                const originalText = textContainer.innerText;
+                
+                textContainer.innerText = '"คัดลอกสำเร็จ!"';
+                iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="#6D554E" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
+                containerElement.classList.add('bg-pastelBlue/30');
+                
+                setTimeout(() => {
+                    textContainer.innerText = originalText;
+                    iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+                    containerElement.classList.remove('bg-pastelBlue/30');
+                }, 2000);
+                return;
+            }
+
+            const isKbank = (type === 'kbank');
+            const buttonElement = containerElement.querySelector(isKbank ? '.kbank-btn' : '.true-btn');
+            const originalHtml = buttonElement.innerHTML;
+            
+            buttonElement.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                สำเร็จ
+            `;
+            
+            buttonElement.classList.replace('bg-white', 'bg-white/50');
+            
+            setTimeout(() => {
+                buttonElement.innerHTML = originalHtml;
+                buttonElement.classList.replace('bg-white/50', 'bg-white');
+            }, 2000);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = message;
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
